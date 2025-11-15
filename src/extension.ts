@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { exec } from 'child_process';
 import * as path from 'path';
+import * as os from 'os';
+import * as fs from 'fs';
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log("SHAP extension activated!");
@@ -14,12 +16,10 @@ export function activate(context: vscode.ExtensionContext) {
 			canSelectMany: false,
 			filters: { "Model Files": ["joblib"] }
 		});
-
 		if (!modelUri) {
 			vscode.window.showWarningMessage("Model not selected.");
 			return;
 		}
-
 		const modelPath = modelUri[0].fsPath;
 
 		// ---- 2. Ask user for data file ----
@@ -27,27 +27,25 @@ export function activate(context: vscode.ExtensionContext) {
 			canSelectMany: false,
 			filters: { "NumPy Arrays": ["npy"] }
 		});
-
 		if (!dataUri) {
 			vscode.window.showWarningMessage("Data not selected.");
 			return;
 		}
-
 		const dataPath = dataUri[0].fsPath;
 
-		// ---- 3. Build output path for SHAP HTML ----
-		const outputPath = path.join(context.extensionPath, "shap_output.png");
+		// ---- 3. Output paths (use temp directory) ----
+		const outputJSON = path.join(os.tmpdir(), "shap_output.json");
+		const outputPNG = path.join(os.tmpdir(), "shap_output.png");
 
-		// const outputPath = path.join(context.extensionPath, "shap_output.html");
-
-		// ---- 4. Path to your Python script ----
+		// ---- 4. Python script ----
 		const scriptPath = path.join(context.extensionPath, "scripts", "explain.py");
 
-		// ---- 5. Construct Python command ----
+		// ---- 5. Python interpreter path ----
 		const pythonPath = "/Applications/anaconda3/envs/shapenv/bin/python";
 
-		const command = `"${pythonPath}" "${scriptPath}" "${modelPath}" "${dataPath}" "${outputPath}"`;
-		// ---- 6. Execute Python ----
+		// ---- 6. Run Python ----
+		const command = `"${pythonPath}" "${scriptPath}" "${modelPath}" "${dataPath}" "${outputJSON}" "${outputPNG}"`;
+
 		exec(command, (err, stdout, stderr) => {
 			if (err) {
 				vscode.window.showErrorMessage("Error running SHAP.");
@@ -55,10 +53,35 @@ export function activate(context: vscode.ExtensionContext) {
 				return;
 			}
 
-			vscode.window.showInformationMessage("SHAP output generated!");
+			vscode.window.showInformationMessage("SHAP analysis complete!");
 
-			// Open SHAP HTML result
-			vscode.env.openExternal(vscode.Uri.file(outputPath));
+			// ---- 7. Read JSON ----
+			console.log("Reading JSON from:", outputJSON);
+
+			const data = JSON.parse(fs.readFileSync(outputJSON, "utf8"));
+			const featureNames: string[] = data.feature_names;
+			const shapValues: number[] = data.mean_abs_shap;
+
+			// ---- 8. Create Output Panel ----
+			const outputChannel = vscode.window.createOutputChannel("SHAP Explanation");
+			outputChannel.clear();
+			outputChannel.show(true);
+
+			outputChannel.appendLine("=== SHAP Feature Importance ===\n");
+
+			const maxVal = Math.max(...shapValues);
+
+			featureNames.forEach((name, i) => {
+				const val = shapValues[i];
+				const bar = "▇".repeat(Math.round((val / maxVal) * 30));
+				outputChannel.appendLine(
+					`${name.padEnd(15)} | ${bar}  (${val.toFixed(3)})`
+				);
+			});
+			outputChannel.appendLine("\n=== End of SHAP Explanation ===");
+
+			// ---- 9. Open PNG in system image viewer ----
+			vscode.env.openExternal(vscode.Uri.file(outputPNG));
 		});
 	});
 
