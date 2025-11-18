@@ -37,8 +37,8 @@ export function activate(context: vscode.ExtensionContext) {
 		const outputJSON = path.join(os.tmpdir(), "shap_output.json");
 		const outputPNG = path.join(os.tmpdir(), "shap_output.png");
 
-		// ---- 4. Python script ----
-		const scriptPath = path.join(context.extensionPath, "scripts", "explain.py");
+		// ---- 4. STUB inserted here ----
+		const scriptPath = path.join(context.extensionPath, "scripts", "feature_shap_stub.py");
 
 		// ---- 5. Python interpreter path ----
 		const pythonPath = "/Applications/anaconda3/envs/shapenv/bin/python";
