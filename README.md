@@ -1,34 +1,32 @@
 # VS Code SHAP Explainer Extension
 
 The **VS Code SHAP Explainer** is a developer tool designed to bring **Explainable AI (XAI)** directly into the IDE experience.  
-It enables developers to run SHAP (SHapley Additive exPlanations) on trained ML models *from inside VS Code*.
+It enables developers to run SHAP-style feature attribution on highlighted code blocks *from inside VS Code*, using a stubbed backend that mimics the real featureSHAP model.
 
-This extension was developed for the **AI for Software Engineering** course and follows proper component-based architecture, including the use of a **stub component** to simulate the featureSHAP backend.
+This extension was developed for the **AI for Software Engineering** course and follows a modular, component-based design intended for later integration with the real featureSHAP implementation.
 
 ---
 
 # Features
 
-### 1. Run SHAP explanations from VS Code  
-Use the command palette:
+### 1. Run SHAP on highlighted code
+Users simply:
 
-```
-Run SHAP Explanation
-```
+1. Highlight any code or comment in the editor  
+2. Right-click  
+3. Select **Run SHAP on Selection**
 
-The extension prompts you to select:
-- a trained model (`.joblib`)
-- a dataset (`.npy`)
+The selected text is passed to the backend interface (currently a stub).
 
 ### 2. Built-in featureSHAP stub  
 The extension calls a stub module (`feature_shap_stub.py`) that simulates the real featureSHAP backend.
 
 The stub:
+- Accepts the highlighted text (but ignores it)
 - Returns **fixed, hardcoded SHAP values** for integration testing
 - Outputs:
-  - `shap_output.json` — global feature importance scores
-  - `shap_output.png` — placeholder beeswarm-style plot
-
+  - `shap_stub_output.json` — global feature importance  
+  - `shap_stub_output.png` — dummy placeholder image (currently ignored)
 This stub uses the **same interface** as the future featureSHAP model, enabling seamless replacement with the real component.
 
 ### 3. ASCII visualization inside VS Code  
@@ -42,11 +40,13 @@ feat_1          | ▇▇▇▇  (0.040)
 feat_2          | ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇  (0.310)
 feat_3          | ▇▇▇▇▇▇▇▇▇▇▇▇  (0.190)
 
-Done.
+Done (stub).
 ```
 
-### 4. PNG SHAP visualization  
-A PNG beeswarm plot (placeholder when using the stub) is generated and opened in the system’s default image viewer (e.g., macOS Preview).
+### 4. PNG output currently disabled  
+The PNG produced by the stub is ignored.  
+Only ASCII SHAP output is shown.
+
 
 ---
 
@@ -93,22 +93,18 @@ F5
 
 VS Code opens a **VS Code Extension Development Host** window.
 
-### 4. Run SHAP
+### 4. Highlight code in the editor from some code file you have
+Select any range of text (code or comments).
 
-Open the Command Palette:
+### 5. Right-click → **Run SHAP on Selection**
+Or open the Command Palette:
 
 ```
-Cmd+Shift+P → Run SHAP Explanation
+Run SHAP on Selection
 ```
 
-Select:
-1. A `.joblib` model  
-2. A `.npy` dataset  
-
-The extension will display:
-- ASCII SHAP bars in the **Output Panel**
-- A PNG in the system viewer  
-- A temporary JSON file containing SHAP values
+### 6. View explanation output
+Results appear in the **SHAP Explanation** Output Panel.
 
 ---
 
@@ -141,7 +137,6 @@ The extension will display:
 # Next Steps
 
 - Replace stub with real featureSHAP implementation  
-- Add a sidebar “SHAP Explorer” view 
 
 ---
 
