@@ -14,11 +14,20 @@
   ],
   "contributes": {
     "commands": [
-      {
-        "command": "shap.runExplanation",
-        "title": "Run SHAP Explanation"
-      }
+    {
+        "command": "shap.runOnSelection",
+        "title": "Run SHAP on Selection"
+    }
+],
+"menus": {
+    "editor/context": [
+        {
+            "command": "shap.runOnSelection",
+            "when": "editorHasSelection"
+        }
     ]
+} 
+
   },
   "main": "./out/extension.js",
   "scripts": {
