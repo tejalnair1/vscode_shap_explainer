@@ -1,0 +1,14 @@
+{
+  "lines": [
+    "def create_instance(self, body, project_id=None):",
+    "response = self.get_conn().instances().insert(\n        project=project_id,\n        body=body\n    ).execute(num_retries=self.num_retries)",
+    "operation_name = response['name']",
+    "self.wait_for_operation_to_complete( project_id=project_id, operation_name=operation_name)"
+  ],
+  "scores": [
+    0.7056767105044115,
+    0.11736307641085399,
+    0.12452139170967205,
+    0.05243882137506243
+  ]
+}
