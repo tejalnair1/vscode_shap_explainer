@@ -181,7 +181,7 @@ function getWebviewContent(values: { id: number; text: string; value: number; pe
     .bar {
         height: 100%;
         border-radius: 4px;
-        background: linear-gradient(90deg, #89f63bff, #15fa2cff, #44ef83ff);
+        background: linear-gradient(90deg, #89f63bff, #15fa2cff, #44efa8ff);
         transition: width 0.25s ease-out;
     }
 
