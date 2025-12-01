@@ -15,7 +15,7 @@ from feature_shap.splitters.block_splitter import BlocksSplitter
 code = sys.argv[1]
 out_path = sys.argv[2]
 
-api_key = "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"
+api_key = os.getenv('OPEN_AI_KEY')  
 if api_key is None:
     raise ValueError("OPEN_AI_KEY environment variable is not set.")
 
