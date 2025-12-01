@@ -135,8 +135,8 @@ function getWebviewContent(values: { id: number; text: string; value: number; pe
     }
 
     h1 {
-        font-size: 1rem;       /* reduced */
-        margin-bottom: 0.6rem; /* tighter spacing */
+        font-size: 1rem;
+        margin-bottom: 0.6rem;
     }
 
     table {
@@ -145,10 +145,10 @@ function getWebviewContent(values: { id: number; text: string; value: number; pe
     }
 
     th, td {
-        padding: 0.25rem 0.4rem; /* smaller padding */
+        padding: 0.25rem 0.4rem;
         vertical-align: top;
-        font-size: 0.75rem;      /* smaller text */
-        line-height: 1.1rem;     /* tighter lines */
+        font-size: 0.75rem;
+        line-height: 1.1rem;
     }
 
     th {
@@ -163,17 +163,17 @@ function getWebviewContent(values: { id: number; text: string; value: number; pe
 
     .code-cell {
         font-family: "Fira Code", monospace;
-        white-space: pre-wrap;      /* allow wrapping */
-        overflow-wrap: break-word;  /* wrap long lines */
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
         word-break: break-word;
-        max-width: 420px;           /* limit width to reduce scrolling */
+        max-width: 420px;
     }
 
     .bar-wrapper {
         width: 100%;
         background-color: #2a2a2a;
         border-radius: 4px;
-        height: 10px;               /* thinner bar */
+        height: 10px;
         overflow: hidden;
         margin-top: 3px;
     }
@@ -181,12 +181,12 @@ function getWebviewContent(values: { id: number; text: string; value: number; pe
     .bar {
         height: 100%;
         border-radius: 4px;
-        background: linear-gradient(90deg, #3b82f6, #facc15, #ef4444);
+        background: linear-gradient(90deg, #89f63bff, #15fa2cff, #44ef83ff);
         transition: width 0.25s ease-out;
     }
 
     .percent-text {
-        font-size: 0.7rem;        /* smaller */
+        font-size: 0.7rem;
         color: #c5c5c5;
         margin-left: 0.35rem;
         white-space: nowrap;
@@ -197,24 +197,46 @@ function getWebviewContent(values: { id: number; text: string; value: number; pe
         font-size: 0.75rem;
         color: #9cdcfe;
     }
+
+    /* Add space before pie chart */
+    .chart-section {
+        margin-top: 1.5rem;
+    }
+
+    #pieChart {
+        max-width: 480px;
+        margin: 0 auto;
+    }
 </style>
 </head>
 <body>
-    <h1>FeatureSHAP Output</h1>
+    <h1>FeatureSHAP Line Importance</h1>
+
     <table>
         <thead>
             <tr>
                 <th style="width: 8%;">Line</th>
                 <th style="width: 52%;">Code</th>
-                <th style="width: 40%;">FeatureSHAP Value</th>
+                <th style="width: 40%;">Importance</th>
             </tr>
         </thead>
         <tbody id="rows"></tbody>
     </table>
 
+    <div class="chart-section">
+        <h1>SHAP Distribution (Pie Chart)</h1>
+        <canvas id="pieChart"></canvas>
+    </div>
+
+    <!-- Load Chart.js (allowed in VS Code Webviews) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
         const data = ${dataJson};
 
+        // --------------------------
+        // Populate Table
+        // --------------------------
         const tbody = document.getElementById("rows");
         data.forEach(item => {
             const tr = document.createElement("tr");
@@ -249,10 +271,51 @@ function getWebviewContent(values: { id: number; text: string; value: number; pe
 
             tbody.appendChild(tr);
         });
+
+        // --------------------------
+        // Pie Chart Section
+        // --------------------------
+        const ctx = document.getElementById('pieChart').getContext('2d');
+
+        const labels = data.map(item => "Line " + item.id);
+        const values = data.map(item => item.percent);
+
+        const colors = [
+            "#ef4444", "#f87171",
+            "#facc15", "#fbbf24",
+            "#3b82f6", "#60a5fa",
+            "#10b981", "#34d399"
+        ];
+
+        new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: colors.slice(0, values.length),
+                    borderColor: "#1e1e1e",
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            color: "#e5e5e5",
+                            font: { size: 12 }
+                        }
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>`;
 }
+
 
 
 
