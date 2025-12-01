@@ -224,7 +224,7 @@ function getWebviewContent(values: { id: number; text: string; value: number; pe
     </table>
 
     <div class="chart-section">
-        <h1>SHAP Distribution (Pie Chart)</h1>
+        <h1>SHAP Distribution</h1>
         <canvas id="pieChart"></canvas>
     </div>
 
@@ -288,17 +288,19 @@ function getWebviewContent(values: { id: number; text: string; value: number; pe
         ];
 
         new Chart(ctx, {
-            type: "pie",
+            type: "doughnut",
             data: {
                 labels: labels,
                 datasets: [{
                     data: values,
                     backgroundColor: colors.slice(0, values.length),
                     borderColor: "#1e1e1e",
-                    borderWidth: 2
+                    borderWidth: 2,
+                    hoverOffset: 12   // nicer hover pop-out
                 }]
             },
             options: {
+                cutout: "55%",
                 responsive: true,
                 plugins: {
                     legend: {
