@@ -40,11 +40,12 @@ export function activate(context: vscode.ExtensionContext) {
             // Output window
             const channel = vscode.window.createOutputChannel("FeatureSHAP");
             channel.show(true);
-            channel.appendLine("Selected Code:");
-            channel.appendLine(selectedCode);
-            channel.appendLine("\nSHAP Response (Raw):");
-            channel.appendLine(JSON.stringify(shapValues, null, 2));
-            channel.appendLine("\nASCII Visualization:\n");
+            channel.clear();
+            // channel.appendLine("Selected Code:");
+            // channel.appendLine(selectedCode);
+            // channel.appendLine("\nSHAP Response (Raw):");
+            // channel.appendLine(JSON.stringify(shapValues, null, 2));
+            // channel.appendLine("\nASCII Visualization:\n");
 
             const ascii = renderAsciiBars(shapValues);
             channel.appendLine(ascii);
@@ -77,17 +78,37 @@ async function getShapValues(code: string) {
 }
 
 // ---------------------- ASCII Bar Graph ----------------------
-function renderAsciiBars(values: { id: number; text: string; value: number; percent: number }[]) {
-    const width = 40; // bar width
+function renderAsciiBars(
+    values: { id: number; text: string; value: number; percent: number }[]
+) {
+    const width = 30; // total bar width
+
+    function charForPercent(p: number) {
+        if (p >= 80) return "█";  // strongest
+        if (p >= 50) return "▓";  // medium
+        if (p >= 20) return "▒";  // light
+        return "░";              // very light
+    }
 
     return values
         .map((v) => {
             const barLength = Math.round((v.percent / 100) * width);
-            const bar = "#".repeat(barLength);
-            return `Line ${v.id} | ${v.text.trim()} | ${bar}  (${v.percent.toFixed(1)}%)`;
+            const blockChar = charForPercent(v.percent);
+
+            const bar = blockChar.repeat(barLength);
+
+            // collapse multiline text into single readable line
+            const textOneLine = v.text.replace(/\n\s*/g, " ");
+
+            return `Line ${v.id} | ${textOneLine} | ${bar.padEnd(width, " ")}  (${v.percent.toFixed(
+                1
+            )}%)`;
         })
         .join("\n");
 }
+
+
+
 
 
 export function deactivate() {}
