@@ -5,3 +5,6 @@ def create_instance(self, body, project_id=None):
     ).execute(num_retries=self.num_retries)
     operation_name = response['name']
     self.wait_for_operation_to_complete( project_id=project_id, operation_name=operation_name)
+
+def add(a, b):
+    return a + b

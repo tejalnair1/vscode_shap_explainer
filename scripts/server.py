@@ -81,18 +81,21 @@ async def compute_shap(req: ShapRequest):
 
     blocks = logical_split(req.code)
 
-    # Generate random SHAP values
+    # Generate random raw values
     raw_vals = {i+1: random.random() for i in range(len(blocks))}
 
-    # Normalize 0–100% for visualization
+    # Sum-based normalization to 100%
     vals = list(raw_vals.values())
-    min_v, max_v = min(vals), max(vals)
-    span = max_v - min_v if max_v != min_v else 1.0
+    total = sum(vals)
+    if total == 0:
+        norm_vals = [100 / len(vals)] * len(vals)   # equal distribution
+    else:
+        norm_vals = [(v / total) * 100 for v in vals]
 
     shap_list = []
     for idx, block in enumerate(blocks, start=1):
         value = raw_vals[idx]
-        percent = (value - min_v) / span * 100
+        percent = norm_vals[idx - 1]
 
         shap_list.append({
             "id": idx,
@@ -102,6 +105,7 @@ async def compute_shap(req: ShapRequest):
         })
 
     return {"shap_values": shap_list}
+
 
 
 # -------------------------------
