@@ -1,150 +1,129 @@
-# VS Code SHAP Explainer Extension
+# FeatureSHAP VS Code Explainer
 
-The **VS Code SHAP Explainer** is a developer tool designed to bring **Explainable AI (XAI)** directly into the IDE experience.  
-It enables developers to run SHAP-style feature attribution on highlighted code blocks *from inside VS Code*, using a stubbed backend that mimics the real featureSHAP model.
-
-This extension was developed for the **AI for Software Engineering** course and follows a modular, component-based design intended for later integration with the real featureSHAP implementation.
+A Visual Studio Code extension that visualizes SHAP-style feature attributions for code selections using an interactive WebView interface. This project provides a frontend for exploring line-level importance values returned by a backend SHAP server (currently stubbed with simulated values). The extension is structured to seamlessly integrate with the full FeatureSHAP model in future iterations.
 
 ---
 
-# Features
-
-### 1. Run SHAP on highlighted code
-Users simply:
-
-1. Highlight any code or comment in the editor  
-2. Right-click  
-3. Select **Run SHAP on Selection**
-
-The selected text is passed to the backend interface (currently a stub).
-
-### 2. Built-in featureSHAP stub  
-The extension calls a stub module (`feature_shap_stub.py`) that simulates the real featureSHAP backend.
-
-The stub:
-- Accepts the highlighted text (but ignores it)
-- Returns **fixed, hardcoded SHAP values** for integration testing
-- Outputs:
-  - `shap_stub_output.json` — global feature importance  
-  - `shap_stub_output.png` — dummy placeholder image (currently ignored)
-This stub uses the **same interface** as the future featureSHAP model, enabling seamless replacement with the real component.
-
-### 3. ASCII visualization inside VS Code  
-After running an explanation, the extension displays global SHAP feature importance directly in the **Output Panel**:
-
-```
-=== SHAP Feature Importance ===
-
-feat_0          | ▇▇▇▇▇▇▇▇▇▇▇▇▇  (0.120)
-feat_1          | ▇▇▇▇  (0.040)
-feat_2          | ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇  (0.310)
-feat_3          | ▇▇▇▇▇▇▇▇▇▇▇▇  (0.190)
-
-Done (stub).
-```
-
-### 4. PNG output currently disabled  
-The PNG produced by the stub is ignored.  
-Only ASCII SHAP output is shown.
-
-
----
-
-# Project Structure
+## 📁 Project Structure
 
 ```
 vscode-shap-explainer/
-│
-├── src/
-│   └── extension.ts          # VS Code extension logic
-│
+├── .vscode/                 # VS Code workspace settings
 ├── scripts/
-│   ├── feature_shap_stub.py  # Stubbed featureSHAP backend
-│   └── explain.py            # Real SHAP backend (future use)
-│
-├── package.json
-├── tsconfig.json
-└── README.md
+│   ├── server.py           # FastAPI backend stub serving random SHAP values
+│   └── test.py             # Test script for backend
+├── shap_model/             # Placeholder for future FeatureSHAP integration
+├── src/
+│   ├── test/               # Extension test files
+│   └── extension.ts        # Main extension entry point
+├── webview/
+│   ├── webview.html        # WebView HTML template
+│   └── webview.js          # Frontend logic for table + chart visualization
+├── README.md               # (This file)
 ```
 
 ---
 
-# Usage
+## Features
 
-### 1. Install dependencies
+### Line-Level SHAP Visualization
+- Displays each selected line of code with:
+  - Line number
+  - Code text (monospace rendering)
+  - Computed percent contribution
+  - A gradient bar visualizing importance
 
+### Interactive Doughnut Chart
+- Shows global attribution distribution across selected lines
+- Hover and slice expansion effects
+- Values match the table for ease of comparison
+
+### Responsive WebView UI
+- Styled to match VS Code’s dark theme
+- Scrollable layout supporting large code selections
+- Smooth CSS transitions and Chart.js rendering
+
+### Modular Client–Server Architecture
+- VS Code extension acts as frontend
+- FastAPI backend stub returns simulated SHAP values
+- Ready for integration with real FeatureSHAP backend
+
+---
+
+## Getting Started
+
+### Install Dependencies
+
+**Frontend**
 ```bash
 npm install
 ```
 
-### 2. Compile the extension
+**Backend**
+```bash
+pip install fastapi uvicorn pydantic
+```
+
+---
+
+### Run the Backend Server
 
 ```bash
-npm run compile
+python scripts/server.py
 ```
 
-### 3. Launch in Extension Development Host
-
-Press:
+This starts a FastAPI server on:
 
 ```
-F5
+http://127.0.0.1:5005/shap
 ```
-
-VS Code opens a **VS Code Extension Development Host** window.
-
-### 4. Highlight code in the editor from some code file you have
-Select any range of text (code or comments).
-
-### 5. Right-click → **Run SHAP on Selection**
-Or open the Command Palette:
-
-```
-Run SHAP on Selection
-```
-
-### 6. View explanation output
-Results appear in the **SHAP Explanation** Output Panel.
 
 ---
 
-# Requirements
+### Launch the Extension
 
-- Python 3
-- Required Python packages:
-  - shap
-  - numpy
-  - matplotlib
-  - joblib
-- Trained model saved as `.joblib`
-- Dataset saved as `.npy`
+Open the project in VS Code, then:
 
----
+1. Press **F5** to open the Extension Development Host
+2. Highlight any code in a file
+3. Open the Command Palette (`Ctrl/Cmd + Shift + P`)
+4. Run **FeatureSHAP: Compute SHAP for Selection**
 
-
-# Release Notes
-
-### **0.1.0 — Current Version**
-- Added featureSHAP stub backend  
-- Integrated Python backend call  
-- ASCII SHAP visualization inside VS Code  
-- PNG plot generation (placeholder)  
-- JSON export of global SHAP feature importance  
-- Modular architecture ready for real model integration  
+A WebView panel appears beside the editor showing:
+- Line importance table  
+- Doughnut chart  
 
 ---
 
-# Next Steps
+## Example UI
 
-- Replace stub with real featureSHAP implementation  
+Below is a sample output generated by the extension:
 
----
-
-# Resources
-
-- [SHAP Documentation](https://shap.readthedocs.io/)
-- [VS Code Extension API](https://code.visualstudio.com/api)
+![FeatureSHAP WebView](examples/ss.png)
 
 ---
 
-**Enjoy using the VS Code SHAP Explainer!**
+## Future Work
+
+- Integration with the real FeatureSHAP model
+- Token-level or AST-level visualizations
+- Comparison mode for multiple SHAP runs
+- Persistent WebView panel for repeated analysis
+- Improved error messaging and backend diagnostics
+
+---
+
+## License
+
+MIT License.  
+Feel free to adapt and modify for research or educational purposes.
+
+---
+
+## Contact
+
+For questions:
+
+**Tejal Nair**  
+Cornell University / William & Mary  
+AI for Software Engineering course  

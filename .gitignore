@@ -3,3 +3,12 @@ dist
 node_modules
 .vscode-test/
 *.vsix
+.vscode/
+.env
+eslintcache
+.DS_Store
+package-lock.json
+package.json
+tsconfig.tsbuildinfo
+tsconfig.json
+vsc-extension-quickstart.md
